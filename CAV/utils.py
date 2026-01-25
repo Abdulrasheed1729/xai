@@ -37,14 +37,18 @@ def get_grads(model, data_loader, device, layer, target_idx=None):
     all_grads = []
 
     for batch_inputs in data_loader:
+        batch_inputs = batch_inputs.to(device)
+
         for i in range(batch_inputs.size(0)):
-            sample_input = batch_inputs[i].unsqueeze(0).to(device)
+            sample_input = batch_inputs[i].unsqueeze(0)
 
             grads = []
-            hook = layer.register_full_backward_hook(make_gradient_hook(grads))
+            hook = layer.register_full_backward_hook(
+                make_gradient_hook(grads)
+            )
 
-            model.zero_grad()
-            output = model(sample_input) 
+            model.zero_grad(set_to_none=True)
+            output = model(sample_input)
 
             logits = output[0]
 
